@@ -13,9 +13,15 @@ function reducer(state = { amount: 1 }, action) {
         return { amount: state.amount + 1 } // You need to make a copy of the state.
     }
 
+    if (action.type === 'decrement') return { amount: state.amount - 1 };
+
+    if (action.type === 'incrementByAmt') return { amount: state.amount + action.payload };
+
+
     return state;
 }
 
 setInterval(() => {
-    store.dispatch({ type: 'increment' });
+    store.dispatch({ type: 'decrement' });
+    store.dispatch({ type: 'incrementByAmt', payload: 4 });
 }, 2000);
