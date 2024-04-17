@@ -12,5 +12,19 @@
             "id": 3,
             "amount": 100
         }
+    ],
+    "bonuses": [
+        {
+            "id": 1,
+            "points": 2
+        },
+        {
+            "id": 2,
+            "points": 4
+        },
+        {
+            "id": 3,
+            "points": 1
+        }
     ]
 }

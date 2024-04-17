@@ -1,19 +1,27 @@
-import { applyMiddleware, createStore } from "redux";
+import { applyMiddleware, createStore, combineReducers } from "redux";
 import logger from "redux-logger";
 import axios from "axios";
 import { thunk } from "redux-thunk";
 
 const history = [];
-const inc = 'increment', dec = 'decrement', incByAmt = 'incrementByAmt', init = 'initial';
+const inc = 'account/increment', dec = 'account/decrement', incByAmt = 'account/incrementByAmt', getUserAccPending = 'account/getUser/pending', getUserAccFulfilled = 'account/getUser/fulfilled', getUserAccRejected = 'account/getUser/rejected';
+const incBonus = 'bonus/increment', decBonus = 'bonus/decreement';
 
 
-const store = createStore(reducer, applyMiddleware(logger.default, thunk));
+const store = createStore(combineReducers({
+    account: reducerAccounts,
+    bonuses: reducerBonuses
+}), applyMiddleware(logger.default, thunk));
 
-function reducer(state = { amount: 1 }, action) {
+function reducerAccounts(state = { amount: 1 }, action) {
 
     switch (action.type) {
-        case init:
-            return { amount: action.payload }
+        case getUserAccFulfilled:
+            return { amount: action.payload };
+        case getUserAccPending:
+            return {};
+        case getUserAccRejected:
+            return { ...state, error: action.error };
         case inc:
             return { amount: state.amount + 1 };
         case dec:
@@ -25,20 +33,42 @@ function reducer(state = { amount: 1 }, action) {
     }
 }
 
+function reducerBonuses(state = { points: 0 }, action) {
+    switch (action.type) {
+        case incBonus:
+            return { points: state.points + 1 }
+        case incByAmt:
+            if (action.payload >= 100)
+                return { points: state.points + 1 };
+        case dec:
+            if (action.payload <= 100);
+            return { points: state.points - 1 };
+        default:
+            return state;
+    }
+}
+
 // Action creators
 const increment = () => ({ type: inc });
-const incrementByAmt = () => ({ type: incByAmt, payload: 5 });
+const incrementBonus = () => ({ type: incBonus });
+const incrementByAmt = (value) => ({ type: incByAmt, payload: value });
 const decrement = () => ({ type: dec });
-function getUser(id) {
+function getUserAccount(id) {
     return async (dispatch, getState) => {
-        const { data } = await axios.get(`http://localhost:3000/accounts/${id}`);
-        dispatch(initUser(data.amount));
+        try {
+            const { data } = await axios.get(`http://localhost:3000/account/${id}`);
+            dispatch(initUserAccFulfilled(data.amount));
+        } catch (error) {
+            dispatch(initUserAccRejected(error.message));
+        }
     }
 };
-const initUser = (value) => ({ type: init, payload: value });
+const initUserAccFulfilled = (value) => ({ type: getUserAccFulfilled, payload: value });
+const initUserAccPending = (value) => ({ type: getUserAccPending, payload: value });
+const initUserAccRejected = (error) => ({ type: getUserAccRejected, error: error });
 
 
 setTimeout(() => {
-    // store.dispatch(incrementByAmt());
-    store.dispatch(getUser(3));
+    store.dispatch(getUserAccount(2));
+    store.dispatch(incrementBonus());
 }, 2000);
