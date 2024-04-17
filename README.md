@@ -11,7 +11,11 @@ json-server < source of the json file >
 
 ## createStore()
 
-To create a Redux store, use 'createStore' function from redux library. It takes a callback function as a parameter. The callback function takes two parameter: a state and an action. You can return the state from the callback function. The state is the current `global` state of the sotre and an action is what 'changes/modifies' the state.
+To create a Redux store, use 'createStore' function from redux library.
+
+### reducers:
+
+Reducers are functions that gets invoked when a certain action is dispatched takes two parameter: a state and an action. You can return the state from the callback function. The state is the current state of the reducer and an action is what 'changes/modifies' the state. The state inside a reducer might be different from other reducer functions.
 
 ### dispatch:
 Every time we call store.dispatch(action):
@@ -21,9 +25,9 @@ Every time we call store.dispatch(action):
 -  The store calls all the listener subscription callbacks. If a listener has access to the store, it can now call store.getState() to read the latest state value
 - *action* is a object contains one 'action-type' property that contains the type of action and one 'payload' that contains the necessary information for reducers to determine how to modify state.
 
->createStore is now deprecated, is is used here only for learning purpose.
+>createStore is now deprecated, it is used here only for learning purpose.
 
-- In order to get the state provided by store, use `getState()` method.
+- In order to get the state provided by store, use `getState()` method. It returns the global state.
   ```javascript
   const store = createStore((state = {a: 1}, action) => {
     return state;
@@ -43,6 +47,17 @@ async function increment() {
 
   return {type: 'increment', payload: data.value};
 };
+```
+
+### combineReducers: 
+Sometimes you may need to use multiple reducer functions in a store. You can't just place them randomly, you need to wrap all the reducers in one function called `combineRecuers`. It takes an object of reducers as arugument. The keys of object should contain reducerName and values should be reducer functions.
+```js
+const store = createStore(combineReducers({
+  account: reducerAccounts,
+  bonuses: reducerBonuses
+}));
+// reducerAccounts and reducerBonuses are two reducer function.
+
 ```
 
 ## redux-thunk:
