@@ -29,14 +29,16 @@ function reducer(state = { amount: 1 }, action) {
 const increment = () => ({ type: inc });
 const incrementByAmt = () => ({ type: incByAmt, payload: 5 });
 const decrement = () => ({ type: dec });
-async function getUser(dispatch, getState) {
-    const { data } = await axios.get('http://localhost:3000/accounts/1');
-    dispatch(initUser(data.amount));
+function getUser(id) {
+    return async (dispatch, getState) => {
+        const { data } = await axios.get(`http://localhost:3000/accounts/${id}`);
+        dispatch(initUser(data.amount));
+    }
 };
 const initUser = (value) => ({ type: init, payload: value });
 
 
 setTimeout(() => {
     // store.dispatch(incrementByAmt());
-    store.dispatch(getUser);
+    store.dispatch(getUser(3));
 }, 2000);
