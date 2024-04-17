@@ -17,11 +17,11 @@ function reducerAccounts(state = { amount: 1 }, action) {
 
     switch (action.type) {
         case getUserAccFulfilled:
-            return { amount: action.payload };
+            return { amount: action.payload, pending: false };
         case getUserAccPending:
-            return {};
+            return { ...state, pending: true };
         case getUserAccRejected:
-            return { ...state, error: action.error };
+            return { ...state, error: action.error, pending: false };
         case inc:
             return { amount: state.amount + 1 };
         case dec:
@@ -56,7 +56,9 @@ const decrement = () => ({ type: dec });
 function getUserAccount(id) {
     return async (dispatch, getState) => {
         try {
-            const { data } = await axios.get(`http://localhost:3000/account/${id}`);
+            dispatch(initUserAccPending());
+
+            const { data } = await axios.get(`http://localhost:3000/accounts/${id}`);
             dispatch(initUserAccFulfilled(data.amount));
         } catch (error) {
             dispatch(initUserAccRejected(error.message));
@@ -64,11 +66,11 @@ function getUserAccount(id) {
     }
 };
 const initUserAccFulfilled = (value) => ({ type: getUserAccFulfilled, payload: value });
-const initUserAccPending = (value) => ({ type: getUserAccPending, payload: value });
+const initUserAccPending = () => ({ type: getUserAccPending });
 const initUserAccRejected = (error) => ({ type: getUserAccRejected, error: error });
 
 
 setTimeout(() => {
     store.dispatch(getUserAccount(2));
-    store.dispatch(incrementBonus());
+    // store.dispatch(incrementBonus());
 }, 2000);
