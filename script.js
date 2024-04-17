@@ -17,11 +17,11 @@ function reducerAccounts(state = { amount: 1 }, action) {
 
     switch (action.type) {
         case getUserAccFulfilled:
-            return { amount: action.payload, pending: false };
+            return { amount: action.payload, pending: false, postState: "posts loaded" };
         case getUserAccPending:
-            return { ...state, pending: true };
+            return { ...state, pending: true, postState: "post loading..." };
         case getUserAccRejected:
-            return { ...state, error: action.error, pending: false };
+            return { ...state, error: action.error, pending: true, postState: "post fetching failed" };
         case inc:
             return { amount: state.amount + 1 };
         case dec:
@@ -57,11 +57,14 @@ function getUserAccount(id) {
     return async (dispatch, getState) => {
         try {
             dispatch(initUserAccPending());
+            console.log("post loading...");
 
             const { data } = await axios.get(`http://localhost:3000/accounts/${id}`);
             dispatch(initUserAccFulfilled(data.amount));
+            // console.log("posts loaded");
         } catch (error) {
             dispatch(initUserAccRejected(error.message));
+            // console.log("data fetching failed");
         }
     }
 };
@@ -72,5 +75,7 @@ const initUserAccRejected = (error) => ({ type: getUserAccRejected, error: error
 
 setTimeout(() => {
     store.dispatch(getUserAccount(2));
+
+    store.getState();
     // store.dispatch(incrementBonus());
 }, 2000);
